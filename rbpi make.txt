@@ -1,0 +1,24 @@
+sudo wget http://tmrh20.github.io/RF24Installer/RPi/install.sh
+ 
+chmod +x install.sh  
+ 
+sudo ./install.sh     
+ 
+g++ -I/usr/local/include/libbson-1.0 -I/usr/local/include/libmongoc-1.0 -lmongoc-1.0 -lbson-1.0 -I/usr/include -I/usr/include/c++/4.9/ -IRaspberry/librf24/rf24libs/RF24/ -L../librf24/ -lrf24 -o rbpi rbpi.cpp
+ 
+./rbpi
+
+
+
+
+For mongodb c driver:
+
+https://api.mongodb.com/c/current/tutorial.html#connecting
+
+cp -r /usr/local/lib/* /usr/lib/
+
+cp -r /usr/local/include/lib* /usr/include/
+
+gcc -o connect connect.c -I/usr/local/include/libbson-1.0 -I/usr/local/include/libmongoc-1.0 -lmongoc-1.0 -lbson-1.0 -L./lib/ -L.
+
+./connect

@@ -1,0 +1,1 @@
+docker run --cap-add ALL -v /usr/include:/usr/include -v /lib/modules:/lib/modules -v /sys:/sys --device /dev/ttyAMA0:/dev/ttyAMA0 --device /dev/mem:/dev/mem --privileged --name sensor --link mongodb:mongodb -ti tschemmer/sensor bash
