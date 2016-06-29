@@ -32,4 +32,6 @@ RUN wget https://github.com/mongodb/mongo-c-driver/releases/download/1.3.5/mongo
 WORKDIR /data
 VOLUME /data
 
+COPY ./rbpi.cpp /data
+
 CMD ["/bin/bash"]
