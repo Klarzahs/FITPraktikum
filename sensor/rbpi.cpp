@@ -75,13 +75,14 @@ void cleanup(void){
   radio.stopListening();
 }
 
-void getTime(char** buf){
+std::string getTime(void){
   time_t     now = time(0);
   struct tm  tstruct;
+  char buf[80];
   tstruct = *localtime(&now);
   strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
-  return buf;
+  return std::string(buf);
 }
 
 void showData(void){
@@ -119,14 +120,13 @@ float calculateLux(uint16_t ch0, uint16_t ch1){
 
 void storeTSL(void){
 
-  uint16_t ir = data[2] << 8 | data[3];
-  uint16_t full = data[4] << 8 | data[5];
+  uint16_t ir = (uint32_t)data[2] << 8 | (uint32_t)data[3];
+  uint16_t full = (uint32_t)data[4] << 8 | (uint32_t)data[5];
 
   float lux = calculateLux(full, ir);
-  char time[80];
-  getTime(time);
+  getTime();
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(time), "Lux", BCON_DOUBLE(lux));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Lux", BCON_DOUBLE(lux));
 
   if (!mongoc_collection_insert (tslCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -138,15 +138,13 @@ void storeDHT(void){
   uint32_t tempU;
   uint32_t humU;
 
-  humU = data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5];
-  tempU = data[6] << 24 | data[7] << 16 | data[8] << 8 | data[9];
+  humU = (uint32_t)data[2] << 24 | (uint32_t)data[3] << 16 | (uint32_t)data[4] << 8 | data[5];
+  tempU = (uint32_t)data[6] << 24 | (uint32_t)data[7] << 16 | (uint32_t)data[8] << 8 | data[9];
 
   double hum = *((double*)&humU);
   double temp = *((double*)&tempU);
 
-  char time[80];
-  getTime(time);
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(time), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
 
   if (!mongoc_collection_insert (dhtCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -156,7 +154,7 @@ void storeDHT(void){
 
 void storeBMP(void){
   int32_t pressure;
-  uint32_t pres_u = data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5];
+  uint32_t pres_u = (uint32_t)data[2] << 24 | (uint32_t)data[3] << 16 | (uint32_t)data[4] << 8 | (uint32_t) data[5];
   pressure = *((int32_t*)&pres_u);
 
   float temperature;
@@ -167,10 +165,7 @@ void storeBMP(void){
   float altitude;
   altitude = 44330 * (1.0 - pow(pressure /101325,0.1903));  //Adafruit code from https://github.com/adafruit/Adafruit-BMP085-Library/blob/master/Adafruit_BMP085.h
 
-
-  char time[80];
-  getTime(time);
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(time), "Temperature", BCON_DOUBLE(temperature), "Pressure", BCON_INT32(pressure), "Altitude", BCON_DOUBLE(altitude));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temperature), "Pressure", BCON_INT32(pressure), "Altitude", BCON_DOUBLE(altitude));
 
   if (!mongoc_collection_insert (bmpCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
