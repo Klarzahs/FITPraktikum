@@ -28,11 +28,13 @@ unsigned long timeoutPeriod = 3000;
 /*********** Defines **********/
 
 const uint64_t pipes[2] = { 0xABCDABCD71LL, 0x544d52687CLL };   // Radio pipe addresses for the 2 nodes to communicate.
-char data[32] = {"00000000000000000000000000000000"};            //Data buffer
+char data[32] = {"000000000000"};            //Data buffer
 
 mongoc_client_t *client;
 mongoc_database_t *database;
-mongoc_collection_t *dhtCol, tslCol, bmpCol;
+mongoc_collection_t *dhtCol;
+mongoc_collection_t *tslCol;
+mongoc_collection_t *bmpCol;
 bson_t  *command, reply, *insert;
 bson_error_t error;
 char *str;
@@ -63,7 +65,9 @@ void cleanup(void){
   bson_destroy (command);
   bson_free (str);
 
-  mongoc_collection_destroy (collection);
+  mongoc_collection_destroy (dhtCol);
+  mongoc_collection_destroy (tslCol);
+  mongoc_collection_destroy (bmpCol);
   mongoc_database_destroy (database);
   mongoc_client_destroy (client);
   mongoc_cleanup ();
@@ -71,10 +75,9 @@ void cleanup(void){
   radio.stopListening();
 }
 
-char[] getTime(void){
+void getTime(char** buf){
   time_t     now = time(0);
   struct tm  tstruct;
-  char       buf[80];
   tstruct = *localtime(&now);
   strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
@@ -120,8 +123,10 @@ void storeTSL(void){
   uint16_t full = data[4] << 8 | data[5];
 
   float lux = calculateLux(full, ir);
+  char time[80];
+  getTime(time);
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Lux", BCON_DOUBLE(lux));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(time), "Lux", BCON_DOUBLE(lux));
 
   if (!mongoc_collection_insert (tslCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -139,7 +144,9 @@ void storeDHT(void){
   double hum = *((double*)&humU);
   double temp = *((double*)&tempU);
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
+  char time[80];
+  getTime(time);
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(time), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
 
   if (!mongoc_collection_insert (dhtCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -160,7 +167,10 @@ void storeBMP(void){
   float altitude;
   altitude = 44330 * (1.0 - pow(pressure /101325,0.1903));  //Adafruit code from https://github.com/adafruit/Adafruit-BMP085-Library/blob/master/Adafruit_BMP085.h
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temperature), "Pressure", BCON_INT32(pressure), "Altitude", BCON_DOUBLE(altitude));
+
+  char time[80];
+  getTime(time);
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(time), "Temperature", BCON_DOUBLE(temperature), "Pressure", BCON_INT32(pressure), "Altitude", BCON_DOUBLE(altitude));
 
   if (!mongoc_collection_insert (bmpCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -171,13 +181,13 @@ void storeBMP(void){
 void storeData(void){
   //check which id the data is from
   switch(data[0]){
-    case 420:
+    case (uint8_t)420:
       storeBMP();
       break;
     case 42:
       storeDHT();
       break;
-    case 1337:
+    case (uint8_t)1337:
       storeTSL();
       break;
     default:
