@@ -1,21 +1,12 @@
 /*
-2015-04-06 : Johan Boeckx - Arduino/RPi(2) nRF24L01+ : Raspberry Pi (2) code
-  Tested on Arduino UNO R3 and Raspberry Pi B Rev. 2.0 and Raspberry Pi 2 B
+Adapted code from Johan Boeckx - Arduino/RPi(2) nRF24L01+ : Raspberry Pi (2)
+Using RF24 lib: Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
 
- Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-version 2 as published by the Free Software Foundation.
-
- 03/17/2013 : Charles-Henri Hallard (http://hallard.me)
-              Modified to use with Arduipi board http://hallard.me/arduipi
-                          Changed to use modified bcm2835 and RF24 library
-TMRh20 2014 - Updated to work with optimized RF24 Arduino library
-
+Written by Thomas Schemmer (Thomas.Schemmer@rwth-aachen.de) for the Workshop at Fraunhofer FIT
 */
 
 #include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -26,207 +17,200 @@ TMRh20 2014 - Updated to work with optimized RF24 Arduino library
 #include <mongoc.h>
 
 using namespace std;
-//
-// Hardware configuration
-// Configure the appropriate pins for your connections
 
-/****************** Raspberry Pi ***********************/
-
-// Radio CE Pin, CSN Pin, SPI Speed
-// See http://www.airspayce.com/mikem/bcm2835/group__constants.html#ga63c029bd6500167152db4e57736d0939 and the related enumerations for pin information.
-
-// Setup for GPIO 22 CE and CE0 CSN with SPI Speed @ 4Mhz
-//RF24 radio(RPI_V2_GPIO_P1_22, BCM2835_SPI_CS0, BCM2835_SPI_SPEED_4MHZ);
-
-// NEW: Setup for RPi B+
-//RF24 radio(RPI_BPLUS_GPIO_J8_15,RPI_BPLUS_GPIO_J8_24, BCM2835_SPI_SPEED_8MHZ);
-
-// Setup for GPIO 15 CE and CE0 CSN with SPI Speed @ 8Mhz
-//RF24 radio(RPI_V2_GPIO_P1_15, RPI_V2_GPIO_P1_24, BCM2835_SPI_SPEED_8MHZ);
-
-// RPi generic:
 RF24 radio(RPI_V2_GPIO_P1_22, BCM2835_SPI_CS0, BCM2835_SPI_SPEED_4MHZ);
 
-/*** RPi Alternate ***/
-//Note: Specify SPI BUS 0 or 1 instead of CS pin number.
-// See http://tmrh20.github.io/RF24/RPi.html for more information on usage
-
-//RPi Alternate, with MRAA
-//RF24 radio(15,0);
-
-//RPi Alternate, with SPIDEV - Note: Edit RF24/arch/BBB/spi.cpp and  set 'this->device = "/dev/spidev0.0";;' or as listed in /dev
-//RF24 radio(22,0);
-
-
-/****************** Linux (BBB,x86,etc) ***********************/
-
-// See http://tmrh20.github.io/RF24/pages.html for more information on usage
-// See http://iotdk.intel.com/docs/master/mraa/ for more information on MRAA
-// See https://www.kernel.org/doc/Documentation/spi/spidev for more information on SPIDEV
-
-// Setup for ARM(Linux) devices like BBB using spidev (default is "/dev/spidev1.0" )
-//RF24 radio(115,0);
-
-//BBB Alternate, with mraa
-// CE pin = (Header P9, Pin 13) = 59 = 13 + 46
-//Note: Specify SPI BUS 0 or 1 instead of CS pin number.
-//RF24 radio(59,0);
 
 /********** User Config *********/
-// Assign a unique identifier for this node, 0 or 1
-// 0 Rx / 1 Tx
 bool radioNumber = 0;
-unsigned long timeoutPeriod = 3000;     // Set a user-defined timeout period. With auto-retransmit set to (15,15) retransmission will take up to 60ms and as little as 7.5ms with it set to (1,15).
+unsigned long timeoutPeriod = 3000;     
 
-/********************************/
+/*********** Defines **********/
 
-// Radio pipe addresses for the 2 nodes to communicate.
-// const uint8_t pipes[][6] = {"1Node","2Node"};
 const uint64_t pipes[2] = { 0xABCDABCD71LL, 0x544d52687CLL };   // Radio pipe addresses for the 2 nodes to communicate.
-char data[32] = {"_A message from RPi w/ NRF24L+!"};            //Data buffer
+char data[32] = {"00000000000000000000000000000000"};            //Data buffer
 
-void showData(void)
-{
-      printf("Data: ");
-      for(int i=0; i<32; i++){
-         if(data[i] != 0){
-			 printf("data[%i]: %i, ", i, data[i]);
-		 }
-      }
-      printf("\n\r");
+mongoc_client_t *client;
+mongoc_database_t *database;
+mongoc_collection_t *dhtCol, tslCol, bmpCol;
+bson_t  *command, reply, *insert;
+bson_error_t error;
+char *str;
+bool retval;
+
+
+
+void initRadio(void){
+  printf("Init Radio´: ");
+  
+  radio.begin();
+  radio.setRetries(15,15);
+  radio.setChannel(1);
+  radio.setDataRate(RF24_250KBPS);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.openWritingPipe(pipes[0]);
+  radio.openReadingPipe(1,pipes[1]);
+  memset(&data,'\0',sizeof(data));
+  radio.startListening();
+
+  printf("ok\n");
+}
+
+void cleanup(void){
+   //Release our handles and clean up libmongoc
+  bson_destroy (insert);
+  bson_destroy (&reply);
+  bson_destroy (command);
+  bson_free (str);
+
+  mongoc_collection_destroy (collection);
+  mongoc_database_destroy (database);
+  mongoc_client_destroy (client);
+  mongoc_cleanup ();
+
+  radio.stopListening();
+}
+
+char[] getTime(void){
+  time_t     now = time(0);
+  struct tm  tstruct;
+  char       buf[80];
+  tstruct = *localtime(&now);
+  strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+  return buf;
+}
+
+void showData(void){
+  printf("Data: ");
+  for(int i=0; i<32; i++){
+    if(data[i] != 0){
+	    printf("data[%i]: %i, ", i, data[i]);
+    }
+  }
+  printf("\n\r");
+}
+
+float calculateLux(uint16_t ch0, uint16_t ch1){
+  //adapted from https://github.com/adafruit/Adafruit_TSL2591_Library/blob/master/Adafruit_TSL2591.cpp
+  float    atime, again;
+  float    cpl, lux;
+
+  // Check for overflow conditions first
+  if ((ch0 == 0xFFFF) | (ch1 == 0xFFFF))
+  {
+    // Signal an overflow
+    return 0;
+  }
+
+  // current arduino settings
+  atime = 100.0F;
+  again = 25.0F;
+  // cpl = (ATIME * AGAIN) / DF
+  cpl = (atime * again) / 408.0F;
+
+  // Alternate lux calculation
+  lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
+  return lux;
+}
+
+void storeTSL(void){
+
+  uint16_t ir = data[2] << 8 | data[3];
+  uint16_t full = data[4] << 8 | data[5];
+
+  float lux = calculateLux(full, ir);
+
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Lux", BCON_DOUBLE(lux));
+
+  if (!mongoc_collection_insert (tslCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
+    fprintf (stderr, "%s\n", error.message);
+  }
+  fflush(stdout);
+}
+
+void storeDHT(void){
+  uint32_t tempU;
+  uint32_t humU;
+
+  humU = data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5];
+  tempU = data[6] << 24 | data[7] << 16 | data[8] << 8 | data[9];
+
+  double hum = *((double*)&humU);
+  double temp = *((double*)&tempU);
+
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
+
+  if (!mongoc_collection_insert (dhtCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
+    fprintf (stderr, "%s\n", error.message);
+  }
+  fflush(stdout);
+}
+
+void storeBMP(void){
+  int32_t pressure;
+  uint32_t pres_u = data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5];
+  pressure = *((int32_t*)&pres_u);
+
+  float temperature;
+  uint8_t temp_int = data[6];
+  uint8_t temp_rest = data[7];
+  temperature = (float)temp_int + temp_rest / 100.0f;
+
+  float altitude;
+  altitude = 44330 * (1.0 - pow(pressure /101325,0.1903));  //Adafruit code from https://github.com/adafruit/Adafruit-BMP085-Library/blob/master/Adafruit_BMP085.h
+
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temperature), "Pressure", BCON_INT32(pressure), "Altitude", BCON_DOUBLE(altitude));
+
+  if (!mongoc_collection_insert (bmpCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
+    fprintf (stderr, "%s\n", error.message);
+  }
+  fflush(stdout);
+}
+
+void storeData(void){
+  //check which id the data is from
+  switch(data[0]){
+    case 420:
+      storeBMP();
+      break;
+    case 42:
+      storeDHT();
+      break;
+    case 1337:
+      storeTSL();
+      break;
+    default:
+      printf("Couldn't find adequate db/sensor: unknown number %i!\n", data[0]);
+      break;
+  }
 }
 
 int main(int argc, char** argv){
+  //Create a new client instance
+  mongoc_init ();
+  client = mongoc_client_new ("mongodb://172.17.0.2:27017");
 
-  const int role_rx=0, role_tx=1;
-  int role=role_rx;
-/********* Role chooser ***********/
+  database = mongoc_client_get_database (client, "weather_station");
+  tslCol = mongoc_client_get_collection (client, "weather_station", "tslTable");
+  bmpCol = mongoc_client_get_collection (client, "weather_station", "bmpTable");
+  dhtCol = mongoc_client_get_collection (client, "weather_station", "dhtTable");
 
-  printf("\n ************ Role Setup ***********\n");
-  string input = "";
-  char myChar = {0};
+  radio.printDetails();
 
-  cout << "Choose a role: Enter 0 for Rx, 1 for Tx (CTRL+C to exit) \n>";
-  getline(cin,input);
+  while (1)
+  {
+      
+      if(radio.available()){
+          // Read any available payloads for analysis
+          radio.read(&data,32);
+          // Dump the printable data of the payload
+          showData();
+          storeData();
+      }
+      delay(5);
+  } // forever loop
 
-  if(input.length() == 1) {
-    myChar = input[0];
-    if(myChar == '0'){
-        cout << "Role: Rx " << endl << endl;
-    }else{  cout << "Role: Tx " << endl << endl;
-        role = role_tx;
-    }
-  }
-  switch(role) {
-      case role_rx :
-        radioNumber=0;
-        break;
-
-      case role_tx :
-        radioNumber=1;
-        break;
-  }
-
-/***********************************/
-  // Setup and configure rf radio
-  radio.begin();
-
-  // optionally, increase the delay between retries & # of retries
-  radio.setRetries(15,15);
-  // Set the channel
-  radio.setChannel(1);
-  // Set the data rate
-  //radio.setDataRate(RF24_2MBPS);
-  radio.setDataRate(RF24_250KBPS);
-  //radio.setPALevel(RF24_PA_MAX);
-  radio.setPALevel(RF24_PA_MIN);
-
-    if ( !radioNumber )    {
-        radio.openWritingPipe(pipes[0]);
-        radio.openReadingPipe(1,pipes[1]);
-        memset(&data,'\0',sizeof(data));
-        radio.startListening();
-    } else {
-        radio.openWritingPipe(pipes[1]);
-        radio.openReadingPipe(1,pipes[0]);
-        radio.stopListening();
-    }
-
-    mongoc_client_t      *client;
-   mongoc_database_t    *database;
-   mongoc_collection_t  *collection;
-   bson_t               *command,
-                         reply,
-                        *insert;
-   bson_error_t          error;
-   char                 *str;
-   bool                  retval;
-
-   /*
-    * Required to initialize libmongoc's internals
-    */
-   mongoc_init ();
-
-   /*
-    * Create a new client instance
-    */
-   client = mongoc_client_new ("mongodb://172.17.0.2:27017");
-
-   /*
-    * Get a handle on the database "db_name" and collection "coll_name"
-    */
-   database = mongoc_client_get_database (client, "db_name");
-   collection = mongoc_client_get_collection (client, "db_name", "coll_name");
-
-    // Dump the configuration of the rf unit for debugging
-    radio.printDetails();
-    printf("Start loop:\n");
-    // forever loop
-    while (1)
-    {
-        if (radioNumber) {
-            if (radio.writeBlocking(&data,sizeof(data),timeoutPeriod)) {
-                printf(".");
-            }
-            else {
-                printf("?");
-            }
-            fflush(stdout);
-            //printf("\n");
-        }
-        else {
-        //
-        // Receive each packet, dump it
-        //
-            if(radio.available()){
-                // Read any available payloads for analysis
-                radio.read(&data,32);
-                // Dump the printable data of the payload
-                showData();
-                insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Data", "[", BCON_INT32(data[2]), BCON_INT32(data[3]),BCON_INT32(data[4]),BCON_INT32(data[5]),BCON_INT32(data[6]),BCON_INT32(data[7]),BCON_INT32(data[8]),BCON_INT32(data[9]),BCON_INT32(data[10]), "]");
-
-                 if (!mongoc_collection_insert (collection, MONGOC_INSERT_NONE, insert, NULL, &error)) {
-                    fprintf (stderr, "%s\n", error.message);
-                 }
-                fflush(stdout);
-            }
-        }
-        delay(5);
-    } // forever loop
-
-
-   bson_destroy (insert);
-   bson_destroy (&reply);
-   bson_destroy (command);
-   bson_free (str);
-
-   /*
-    * Release our handles and clean up libmongoc
-    */
-   mongoc_collection_destroy (collection);
-   mongoc_database_destroy (database);
-   mongoc_client_destroy (client);
-   mongoc_cleanup ();
-
+  cleanup();
   return 0;
 }
