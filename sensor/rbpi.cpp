@@ -15,7 +15,7 @@ Written by Thomas Schemmer (Thomas.Schemmer@rwth-aachen.de) for the Workshop at 
 #include <bson.h>
 #include <bcon.h>
 #include <mongoc.h>
-
+#include <math.h>
 using namespace std;
 
 RF24 radio(RPI_V2_GPIO_P1_22, BCM2835_SPI_CS0, BCM2835_SPI_SPEED_4MHZ);
@@ -23,7 +23,7 @@ RF24 radio(RPI_V2_GPIO_P1_22, BCM2835_SPI_CS0, BCM2835_SPI_SPEED_4MHZ);
 
 /********** User Config *********/
 bool radioNumber = 0;
-unsigned long timeoutPeriod = 3000;     
+unsigned long timeoutPeriod = 3000;
 
 /*********** Defines **********/
 
@@ -44,7 +44,7 @@ bool retval;
 
 void initRadio(void){
   printf("Init Radio´: ");
-  
+
   radio.begin();
   radio.setRetries(15,15);
   radio.setChannel(1);
@@ -89,7 +89,7 @@ void showData(void){
   printf("Data: ");
   for(int i=0; i<32; i++){
     if(data[i] != 0){
-	    printf("data[%i]: %i, ", i, data[i]);
+            printf("data[%i]: %i, ", i, data[i]);
     }
   }
   printf("\n\r");
@@ -126,7 +126,7 @@ void storeTSL(void){
   float lux = calculateLux(full, ir);
   getTime();
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Lux", BCON_DOUBLE(lux));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime().c_str()), "Lux", BCON_DOUBLE(lux));
 
   if (!mongoc_collection_insert (tslCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -144,7 +144,7 @@ void storeDHT(void){
   double hum = *((double*)&humU);
   double temp = *((double*)&tempU);
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime().c_str()), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
 
   if (!mongoc_collection_insert (dhtCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -165,7 +165,7 @@ void storeBMP(void){
   float altitude;
   altitude = 44330 * (1.0 - pow(pressure /101325,0.1903));  //Adafruit code from https://github.com/adafruit/Adafruit-BMP085-Library/blob/master/Adafruit_BMP085.h
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime()), "Temperature", BCON_DOUBLE(temperature), "Pressure", BCON_INT32(pressure), "Altitude", BCON_DOUBLE(altitude));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime().c_str()), "Temperature", BCON_DOUBLE(temperature), "Pressure", BCON_INT32(pressure), "Altitude", BCON_DOUBLE(altitude));
 
   if (!mongoc_collection_insert (bmpCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -193,6 +193,7 @@ void storeData(void){
 
 int main(int argc, char** argv){
   //Create a new client instance
+  initRadio();
   mongoc_init ();
   client = mongoc_client_new ("mongodb://172.17.0.2:27017");
 
@@ -205,7 +206,7 @@ int main(int argc, char** argv){
 
   while (1)
   {
-      
+
       if(radio.available()){
           // Read any available payloads for analysis
           radio.read(&data,32);
