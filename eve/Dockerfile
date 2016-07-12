@@ -19,8 +19,12 @@ RUN apt-get update && apt-get install -y \
 
 RUN sudo pip install eve
 
+RUN sudo apt-get update && \
+    sudo apt-get upgrade && \
+    sudo apt-get install nodejs
+
 # Define working directory
 WORKDIR /data
 VOLUME /data
 
-CMD["/bin/bash"]
+EXPOSE 5000
