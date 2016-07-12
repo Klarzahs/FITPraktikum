@@ -1,21 +1,5 @@
-FROM resin/rpi-raspbian:jessie
+FROM tschemmer/base
 MAINTAINER Thomas Schemmer
-
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    git-core \
-    build-essential \
-    gcc \
-    g++ \
-    make \
-    vim \
-    wget \
-    python \
-    python-dev \
-    python-pip \
-    python-virtualenv \
-    --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
 
 RUN sudo pip install eve
 
@@ -26,5 +10,7 @@ RUN sudo apt-get update && \
 # Define working directory
 WORKDIR /data
 VOLUME /data
+
+COPY settings.py /eve/settings.py
 
 EXPOSE 5000
