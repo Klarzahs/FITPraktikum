@@ -29,19 +29,15 @@ dhtTable = {
             'type': 'number',
             'required': True,
         },
-        'temperature' : {
+        'Temperature' : {
             'type': 'number',
             'required': True,
         },
-        'humidity' : {
+        'Humidity' : {
             'type': 'number',
             'required': True,
         },
-        'date' : {
-            'type': 'datetime',
-            'required': True,
-        },
-        'time' : {
+        'Timestamp' : {
             'type': 'datetime',
             'required': True,
         }
@@ -54,27 +50,19 @@ bmpTable = {
             'type': 'number',
             'required': True,
         },
-        'temperature' : {
+        'Temperature' : {
             'type': 'number',
             'required': True,
         },
-        'altitude' : {
+        'Altitude' : {
             'type': 'number',
             'required': True,
         },
-        'pressure' : {
+        'Pressure' : {
             'type': 'number',
             'required': True,
         },
-        'sea_level_pressure' : {
-            'type': 'number',
-            'required': True,
-        },
-        'date' : {
-            'type': 'datetime',
-            'required': True,
-        },
-        'time' : {
+        'Timestamp' : {
             'type': 'datetime',
             'required': True,
         }
@@ -91,7 +79,7 @@ tslTable = {
             'type': 'number',
             'required': True,
         },
-        'lux' : {
+        'Lux' : {
             'type': 'number',
             'required': True,
         },
@@ -99,11 +87,7 @@ tslTable = {
             'type': 'number',
             'required': True,
         },
-        'date' : {
-            'type': 'datetime',
-            'required': True,
-        },
-        'time' : {
+        'Timestamp' : {
             'type': 'datetime',
             'required': True,
         }
