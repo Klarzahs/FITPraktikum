@@ -3,10 +3,6 @@ MAINTAINER Thomas Schemmer
 
 RUN sudo pip install eve
 
-RUN sudo apt-get update && \
-    sudo apt-get upgrade && \
-    sudo apt-get install nodejs
-
 RUN mkdir /eve
 
 COPY settings.py /eve/settings.py
