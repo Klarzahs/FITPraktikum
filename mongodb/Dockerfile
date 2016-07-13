@@ -8,6 +8,8 @@ RUN sudo apt-get update && \
 RUN sudo mkdir /data && \
     sudo mkdir /data/db
 
+RUN echo 'db.addUser("<username>", "<password>");' | mongo weather_station
+
 # Define working directory
 WORKDIR /data
 VOLUME /data
