@@ -7,10 +7,14 @@ RUN sudo apt-get update && \
     sudo apt-get upgrade && \
     sudo apt-get install nodejs
 
+RUN mkdir /eve
+
+COPY settings.py /eve/settings.py
+COPY run.py /eve/run.py
+
 # Define working directory
 WORKDIR /data
 VOLUME /data
 
-COPY settings.py /eve/settings.py
 
 EXPOSE 5000
