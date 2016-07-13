@@ -14,3 +14,5 @@ VOLUME /data
 
 
 EXPOSE 5000
+
+CMD ["python","/eve/run.py"]
