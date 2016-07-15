@@ -17,7 +17,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_PID_FILE /var/run/apache2.pid
 
-COPY display /var/www/
+COPY display /var/www/html
 
 # Expose apache.
 EXPOSE 80
