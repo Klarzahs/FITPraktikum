@@ -26,17 +26,17 @@ setInterval(function(){
                         var hour = time.getHours();
                         if (dht_temperature > 25) {
                             if(hour>6 && hour<20){
-                                $('#weather_icon').attr('src', '../magicmirror/img/sun.png');   
+                                $('#weather_icon').attr('src', '../img/sun.png');   
                             }else{
-                                $('#weather_icon').attr('src', '../magicmirror/img/moon.png');
+                                $('#weather_icon').attr('src', '../img/moon.png');
                             };
                         }else if(dht_temperature < 8){
-                            $('#weather_icon').attr('src', '../magicmirror/img/cold.png');
+                            $('#weather_icon').attr('src', '../img/cold.png');
                         }else{
                             if(hour>6 && hour<20){
-                                $('#weather_icon').attr('src', '../magicmirror/img/sun_cloud.png');   
+                                $('#weather_icon').attr('src', '../img/sun_cloud.png');   
                             }else{
-                                $('#weather_icon').attr('src', '../magicmirror/img/moon_cloud.png');
+                                $('#weather_icon').attr('src', '../img/moon_cloud.png');
                             };
                         };
 

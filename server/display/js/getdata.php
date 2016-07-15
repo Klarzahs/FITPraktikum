@@ -9,12 +9,9 @@
         }
 
 
-        $link_bmp = getLastPageLink('http://172.17.0.3:5000/bmpTable?sort=-Times
-tamp');
-        $link_tsl = getLastPageLink('http://172.17.0.3:5000/tslTable?sort=-Times
-tamp');
-        $link_dht = getLastPageLink('http://172.17.0.3:5000/dhtTable?sort=-Times
-tamp');
+        $link_bmp = getLastPageLink('http://172.17.0.3:5000/bmpTable?sort=-Timestamp');
+        $link_tsl = getLastPageLink('http://172.17.0.3:5000/tslTable?sort=-Timestamp');
+        $link_dht = getLastPageLink('http://172.17.0.3:5000/dhtTable?sort=-Timestamp');
 
         //Latest data
         //TSL raw
@@ -56,10 +53,8 @@ tamp');
         $bmp_pressure = explode(', "sea_level_pressure"',$bmp_pressure[1]);
         $bmp_pressure = $bmp_pressure[0];
 
-        $bmp_sea_level_pressure = explode('"sea_level_pressure": ', $latest_bmp_
-data);
-        $bmp_sea_level_pressure = explode(', "_links"',$bmp_sea_level_pressure[1
-]);
+        $bmp_sea_level_pressure = explode('"sea_level_pressure": ', $latest_bmp_data);
+        $bmp_sea_level_pressure = explode(', "_links"',$bmp_sea_level_pressure[1]);
         $bmp_sea_level_pressure = $bmp_sea_level_pressure[0];
 
         //DHT
