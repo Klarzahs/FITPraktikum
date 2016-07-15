@@ -39,61 +39,61 @@
             <table id="weather" width="450" height="350" border='0'>
                 <tr rowspan=3 width="300">
                     <td align=center colspan=2 ><img id='weather_icon' src='display/img/wait.png'></td>
-                    <td align=center colspan=2 ><img src="display/img/thermometer2.png"></td>
+                    <td align=center colspan=2 ><img src="img/thermometer2.png"></td>
 					<td align=center colspan=2 id='dht_temperature'>00</td>
                     <td align=center colspan=2 id='elm'>°C</td>
                 </tr>
                 <tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/pressure.png"></td>
+                    <td align=center colspan=1><img src="img/pressure.png"></td>
                     <td align=center colspan=2 id="elm">Pressure</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="bmp_pressure">00</td>
                     <td align=center colspan=3 id="unit">atm</td>
                 </tr>
                 <tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/humidity.png"></td>
+                    <td align=center colspan=1><img src="img/humidity.png"></td>
                     <td align=center colspan=2 id="elm">Humidity</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="dht_humidity">00</td>
                     <td align=center colspan=3 id="unit">%</td>
                 </tr>
                 <tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/sea-level.png"></td>
+                    <td align=center colspan=1><img src="img/sea-level.png"></td>
                     <td align=center colspan=2 id="elm">Sea level pressure</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="bmp_sea_level_pressure">00</td>
                     <td align=center colspan=3 id="unit"></td>
                 </tr>  
 				<tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/thermometer.png"></td>
+                    <td align=center colspan=1><img src="img/thermometer.png"></td>
                     <td align=center colspan=2 id="elm">Temperature</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="bmp_temperature">00</td>
                     <td align=center colspan=3 id="unit">°C</td>
                 </tr>
                 <tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/altitude.png"></td>
+                    <td align=center colspan=1><img src="img/altitude.png"></td>
                     <td align=center colspan=2 id="elm">Altitude</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="bmp_altitude">00</td>
                     <td align=center colspan=3 id="unit"></td>
                 </tr>
 				<tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/lux.png"></td>
+                    <td align=center colspan=1><img src="img/lux.png"></td>
                     <td align=center colspan=2 id="elm">Lux</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="tsl_lux">00</td>
                     <td align=center colspan=3 id="unit"></td>
                 </tr>
                 <tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/lux.png"></td>
+                    <td align=center colspan=1><img src="img/lux.png"></td>
                     <td align=center colspan=2 id="elm">Full Luminosity</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="tsl_full_luminosity">00</td>
                     <td align=center colspan=3 id="unit"></td>
                 </tr>
                 <tr rowspan=1>
-                    <td align=center colspan=1><img src="display/img/lux.png"></td>
+                    <td align=center colspan=1><img src="img/lux.png"></td>
                     <td align=center colspan=2 id="elm">Ir luminosity</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="tsl_ir_luminosity">00</td>

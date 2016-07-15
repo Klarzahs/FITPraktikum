@@ -20,15 +20,15 @@ tamp');
         //TSL raw
         $lastpage = file_get_contents($link_tsl);
         $id_tsl = explode('_id', $lastpage);
-        $latest_tsl_data = $id_tsl[count($id_tsl)-2];
+        $latest_tsl_data = $id_tsl[0];
         //BMP raw
         $lastpage = file_get_contents($link_bmp);
         $id_bmp = explode('_id', $lastpage);
-        $latest_bmp_data = $id_bmp[count($id_bmp)-2];
+        $latest_bmp_data = $id_bmp[0];
         //DHT raw
         $lastpage = file_get_contents($link_dht);
         $id_dht = explode('_id', $lastpage);
-        $latest_dht_data = $id_dht[count($id_dht)-2];
+        $latest_dht_data = $id_dht[0];
 
         //TSL data
         $tsl_full_luminosity = explode('full_luminosity": ', $latest_tsl_data);
