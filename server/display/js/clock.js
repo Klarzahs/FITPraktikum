@@ -1,3 +1,8 @@
+function checkTime(i) {
+	if (i < 10) {i = "0" + i};  // add "0"
+	return i;
+}
+
 function startTime() {
 	var today = new Date();
 	
@@ -23,7 +28,5 @@ function startTime() {
 	//document.getElementById('clock').innerHTML = h + ":" + min + ":" + s;
 	var t = setTimeout(startTime, 500);
 }
-function checkTime(i) {
-	if (i < 10) {i = "0" + i};  // add "0"
-	return i;
-}
+window.onload = startTime;
+
