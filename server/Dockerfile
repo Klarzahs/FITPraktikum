@@ -5,7 +5,11 @@ MAINTAINER Thomas Schemmer
 #https://medium.com/dev-tricks/apache-and-php-on-docker-44faef716150#.fqgne5p0t
 
 RUN sudo apt-get update && sudo apt-get upgrade && \
-    EBIAN_FRONTEND=noninteractive apt-get -y install apache2
+    EBIAN_FRONTEND=noninteractive apt-get -y install \
+    apache2 \
+    php5-common \
+    libapache2-mod-php5 \
+    php5-cli
 
 # Enable apache mods.
 RUN a2enmod rewrite
