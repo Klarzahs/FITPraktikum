@@ -10,17 +10,16 @@ setInterval(function(){
                         }.bind(this),
                     success: function(response){
                         var datalist = response;
-
                         var tsl_full_luminosity = datalist.tsl_full_luminosity;
                         var tsl_lux = datalist.tsl_lux;
                         var tsl_ir_luminosity = datalist.tsl_ir_luminosity;
 
-                        var bmp_temperature = datalist.bmp_temperature;
+                        var bmp_temperature = parseFloat(datalist.bmp_temperature.split(",")[0]).toFixed(2);
                         var bmp_altitude = datalist.bmp_altitude;
-                        var bmp_pressure = datalist.bmp_pressure;
+                        var bmp_pressure = datalist.bmp_pressure.split(",")[0];
                         var bmp_sea_level_pressure = datalist.bmp_sea_level_pressure;
 
-                        var dht_temperature = datalist.dht_temperature;
+                        var dht_temperature = datalist.dht_temperature.split(",")[0];
                         var dht_humidity = datalist.dht_humidity;
 
                         var time = new Date();
