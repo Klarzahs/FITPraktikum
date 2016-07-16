@@ -94,6 +94,7 @@
                 </tr>                
             </table>
         </div>
+        <div id="weather"></div>
     </div>
 </body>
 </html>
