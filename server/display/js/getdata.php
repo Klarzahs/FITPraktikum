@@ -9,9 +9,9 @@
         }
 
 
-        $link_bmp = 'http://172.17.0.3:5000/bmpTable?sort=-Timestamp';
-        $link_tsl = 'http://172.17.0.3:5000/tslTable?sort=-Timestamp';
-        $link_dht = 'http://172.17.0.3:5000/dhtTable?sort=-Timestamp';
+        $link_bmp = 'http://172.17.0.5:5000/bmpTable?sort=-Timestamp';
+        $link_tsl = 'http://172.17.0.5:5000/tslTable?sort=-Timestamp';
+        $link_dht = 'http://172.17.0.5:5000/dhtTable?sort=-Timestamp';
 
         //Latest data
         //TSL raw
