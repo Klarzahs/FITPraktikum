@@ -38,7 +38,7 @@
             <div class="container"></div>     
             <table id="weather" width="450" height="350" border='0'>
                 <tr rowspan=3 width="300">
-                    <td align=center colspan=2 ><img id='weather_icon' src='display/img/wait.png'></td>
+                    <td align=center colspan=2 ><img id='weather_icon' src='img/wait.png'></td>
                     <td align=center colspan=2 ><img src="img/thermometer2.png"></td>
 					<td align=center colspan=2 id='dht_temperature'>00</td>
                     <td align=center colspan=2 id='elm'>°C</td>
@@ -48,7 +48,7 @@
                     <td align=center colspan=2 id="elm">Pressure</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="bmp_pressure">00</td>
-                    <td align=center colspan=3 id="unit">atm</td>
+                    <td align=center colspan=3 id="unit">Pa</td>
                 </tr>
                 <tr rowspan=1>
                     <td align=center colspan=1><img src="img/humidity.png"></td>
@@ -69,14 +69,14 @@
                     <td align=center colspan=2 id="elm">Altitude</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="bmp_altitude">00</td>
-                    <td align=center colspan=3 id="unit"></td>
+                    <td align=center colspan=3 id="unit">m</td>
                 </tr>
 				<tr rowspan=1>
                     <td align=center colspan=1><img src="img/lux.png"></td>
                     <td align=center colspan=2 id="elm">Lux</td>
                     <td align=center colspan=1 id="elm">:</td>
                     <td align=center colspan=1 id="tsl_lux">00</td>
-                    <td align=center colspan=3 id="unit"></td>
+                    <td align=center colspan=3 id="unit">lx</td>
                 </tr>
                 <tr rowspan=1>
                     <td align=center colspan=1><img src="img/lux.png"></td>
