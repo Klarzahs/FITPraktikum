@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="fonts/roboto.css">
     <script src="js/clock.js"></script>
     <script src="js/jquery.js"></script>
+    <script src="js/jquery.simpleWeather.js"></script>
     <script src="js/load.js"> </script>
 </head>
 <body>
