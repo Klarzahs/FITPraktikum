@@ -15,7 +15,7 @@ setInterval(function(){
                         var tsl_ir_luminosity = datalist.tsl_ir_luminosity;
 
                         var bmp_temperature = parseFloat(datalist.bmp_temperature.split(",")[0]).toFixed(2);
-                        var bmp_altitude = datalist.bmp_altitude;
+                        var bmp_altitude = datalist.bmp_altitude / 1000;
                         var bmp_pressure = datalist.bmp_pressure.split(",")[0];
                         var bmp_sea_level_pressure = datalist.bmp_sea_level_pressure;
 
