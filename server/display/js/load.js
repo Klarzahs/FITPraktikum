@@ -11,7 +11,7 @@ setInterval(function(){
                     success: function(response){
                         var datalist = response;
                         var tsl_full_luminosity = datalist.tsl_full_luminosity;
-                        var tsl_lux = var tsl_lux = parseFloat(datalist.tsl_lux.split(",")[0]).toFixed(2);
+                        var tsl_lux = parseFloat(datalist.tsl_lux.split(",")[0]).toFixed(2);
                         var tsl_ir_luminosity = datalist.tsl_ir_luminosity;
 
                         var bmp_temperature = parseFloat(datalist.bmp_temperature.split(",")[0]).toFixed(2);
