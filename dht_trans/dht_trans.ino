@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+#include <LowPower.h>
 /*
 2015-04-06 : Johan Boeckx - Arduino/RPi(2) nRF24L01+ : Arduino UNO R3 code
   Tested on Arduino UNO R3 and Raspberry Pi B Rev. 2.0 and Raspberry Pi 2 B
@@ -70,7 +70,14 @@ void setup(void) {
   printf("\n\rRF24 Sender online!\n\r");
   radio.printDetails();                   // Dump the configuration of the rf unit for debugging
 
-  radio.powerUp();                        //Power up the radio
+  //radio.powerUp();                        //Power up the radio
+}
+
+void sleep()
+{
+  for (int i = 0; i < 8; i++) { 
+     LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); 
+  }
 }
 
 void showData(void)
@@ -86,8 +93,7 @@ void showData(void)
       printf("\n\r");
 }
 
-void loop(void){
-  delay(250);                                              
+void loop(void){                                             
   if(radio.txStandBy(timeoutPeriod)){                       // If transfer initiation was successful, do the following
 
       boolean timedOut = 0;  
@@ -126,6 +132,8 @@ void loop(void){
       double temp = DHT.temperature;
       uint32_t humU = *((uint32_t*)&hum);
       uint32_t tempU = *((uint32_t*)&temp);
+
+      Serial.println(temp);
       
       data[2] = humU >> 24;
       data[3] = humU >> 16;
@@ -151,4 +159,5 @@ void loop(void){
      Serial.println("Communication not established");       //If unsuccessful initiating transfer, exit and retry later
  }
   showData();
+  sleep();
 }

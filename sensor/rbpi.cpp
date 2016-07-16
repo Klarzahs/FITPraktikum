@@ -126,7 +126,7 @@ void storeTSL(void){
   float lux = calculateLux(full, ir);
   getTime();
 
-  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime().c_str()), "Lux", BCON_DOUBLE(lux));
+  insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime().c_str()), "Lux", BCON_DOUBLE(lux), "full_luminosity", BCON_INT32(full), "ir_luminosity", BCON_INT32(ir));
 
   if (!mongoc_collection_insert (tslCol, MONGOC_INSERT_NONE, insert, NULL, &error)) {
     fprintf (stderr, "%s\n", error.message);
@@ -141,8 +141,8 @@ void storeDHT(void){
   humU = (uint32_t)data[2] << 24 | (uint32_t)data[3] << 16 | (uint32_t)data[4] << 8 | data[5];
   tempU = (uint32_t)data[6] << 24 | (uint32_t)data[7] << 16 | (uint32_t)data[8] << 8 | data[9];
 
-  double hum = *((double*)&humU);
-  double temp = *((double*)&tempU);
+  float hum = *((float*)&humU);
+  float temp = *((float*)&tempU);
 
   insert = BCON_NEW ("Sensor", BCON_INT32(data[0]), "Payloadnr", BCON_INT32(data[1]), "Timestamp", BCON_UTF8(getTime().c_str()), "Temperature", BCON_DOUBLE(temp), "Humidity", BCON_DOUBLE(hum));
 
