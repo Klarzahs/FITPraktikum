@@ -1,0 +1,7 @@
+#/boot/config.txt
+
+hdmi_force_hotplug=1
+enable_uart=1
+dtparam=spi=on
+hdmi_group=2
+hdmi_mode=35
