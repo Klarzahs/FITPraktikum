@@ -57,13 +57,6 @@
                     <td align=center colspan=1 id="dht_humidity">00</td>
                     <td align=center colspan=3 id="unit">%</td>
                 </tr>
-                <tr rowspan=1>
-                    <td align=center colspan=1><img src="img/sea-level.png"></td>
-                    <td align=center colspan=2 id="elm">Sea level pressure</td>
-                    <td align=center colspan=1 id="elm">:</td>
-                    <td align=center colspan=1 id="bmp_sea_level_pressure">00</td>
-                    <td align=center colspan=3 id="unit"></td>
-                </tr>  
 				<tr rowspan=1>
                     <td align=center colspan=1><img src="img/thermometer.png"></td>
                     <td align=center colspan=2 id="elm">Temperature</td>

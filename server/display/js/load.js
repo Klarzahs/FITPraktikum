@@ -11,7 +11,7 @@ setInterval(function(){
                     success: function(response){
                         var datalist = response;
                         var tsl_full_luminosity = datalist.tsl_full_luminosity;
-                        var tsl_lux = datalist.tsl_lux;
+                        var tsl_lux = var tsl_lux = parseFloat(datalist.tsl_lux.split(",")[0]).toFixed(2);
                         var tsl_ir_luminosity = datalist.tsl_ir_luminosity;
 
                         var bmp_temperature = parseFloat(datalist.bmp_temperature.split(",")[0]).toFixed(2);
@@ -47,7 +47,6 @@ setInterval(function(){
                         $('#bmp_temperature').html(bmp_temperature);
                         $('#bmp_altitude').html(bmp_altitude);
                         $('#bmp_pressure').html(bmp_pressure);
-                        $('#bmp_sea_level_pressure').html(bmp_sea_level_pressure);
 
                         $('#dht_temperature').html(dht_temperature);
                         $('#dht_humidity').html(dht_humidity);                       

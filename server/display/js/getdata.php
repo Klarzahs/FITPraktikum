@@ -9,9 +9,9 @@
         }
 
 
-        $link_bmp = getLastPageLink('http://172.17.0.3:5000/bmpTable?sort=-Timestamp');
-        $link_tsl = getLastPageLink('http://172.17.0.3:5000/tslTable?sort=-Timestamp');
-        $link_dht = getLastPageLink('http://172.17.0.3:5000/dhtTable?sort=-Timestamp');
+        $link_bmp = 'http://172.17.0.3:5000/bmpTable?sort=-Timestamp';
+        $link_tsl = 'http://172.17.0.3:5000/tslTable?sort=-Timestamp';
+        $link_dht = 'http://172.17.0.3:5000/dhtTable?sort=-Timestamp';
 
         //Latest data
         //TSL raw
@@ -32,7 +32,7 @@
         $tsl_full_luminosity = explode(', "Lux":',$tsl_full_luminosity[1]);
         $tsl_full_luminosity = $tsl_full_luminosity[0];
 
-        $tsl_lux = explode('"lux": ', $latest_tsl_data);
+        $tsl_lux = explode('"Lux": ', $latest_tsl_data);
         $tsl_lux = explode(', "_links"',$tsl_lux[1]);
         $tsl_lux = $tsl_lux[0];
 
